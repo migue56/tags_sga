@@ -9,6 +9,11 @@ from django.http import HttpResponse
 from django.template import Context
 from django.template.loader import get_template
 from xhtml2pdf import pisa
+from tags_sga.models import (SGAIndicator,
+                              Category,
+                              Pictogram
+                              )
+
 
 def link_callback(uri, rel):
     """
@@ -53,18 +58,23 @@ def render_pdf_view(request, name,  template_path, context):
     return response
 
 
-def get_label_component(component):
-    return component
+
+
+def get_label_component(components):
+    indicators = SGAIndicator.objects.filter(component__in=components).distinct()
+    warnigns_categories =  Category.objects.filter(sgaindicator__in=indicators)
+    pictugram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag')
+    return (indicators,warnigns_categories,pictugram)
 
 
 def get_label_sustance(sustance):
-    content_values=get_label_component(sustance.componets)
+    (indicators,warnigns_categories,pictugram)=get_label_component(sustance.componets.all())
     
     label = {# list of values kept on product label
     'sustance': sustance.marketing_name,
-    'pictograms': "",
+    'pictograms': pictugram,
     'components': sustance.componets,
-    'warning_word':"", #Peligro
+    'warning_word': pictugram.first().get_human_tag(),
     'warning_prudences':"", #prudences
     'warning_tips':"", #prudences
     }

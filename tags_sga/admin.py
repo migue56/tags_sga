@@ -10,14 +10,15 @@ from .models import (
     Provider,
     )
 
-from .utils import render_pdf_view
+from .utils import (render_pdf_view,
+                    get_label_sustance)
 
 
 
 
 def make_tag_pdf(modeladmin, request, queryset):
     for object in queryset:
-         label= object.get_build_label()
+         label= get_label_sustance(object)
          print (label)
          context ={'obj': object}
          return render_pdf_view(request, "etiqueta", 
