@@ -20,7 +20,7 @@ def make_tag_pdf(modeladmin, request, queryset):
     for object in queryset:
          label= get_label_sustance(object)
          print (label)
-         context ={'obj': object}
+         context ={'obj': label}
          return render_pdf_view(request, "etiqueta", 
                            'tags.html', context)
 make_tag_pdf.short_description = "Download tag"

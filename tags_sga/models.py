@@ -1,22 +1,32 @@
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .utils import get_label_sustance,get_label_component
+
 
 
 class Pictogram(models.Model):
-    DANGER = 'Danger'
-    ATTENTION = 'Attention'
-    CHOICES = (
+    DANGER = 5
+    ATTENTION = 1
+    CHOICES = ( 
         ( DANGER,_('Danger')),
         (ATTENTION,_('Attention')),
     )
     codename = models.CharField(max_length=100,primary_key=True)
     ilustrator_oit = models.FileField(upload_to='pictograms/',blank=True, null=True)
     ilustrator_sga = models.FileField(upload_to='pictograms/',blank=True, null=True) 
-    warning_level = models.IntegerField(default=0) 
-    human_tag = models.CharField(max_length=20,choices=CHOICES)
+    warning_level = models.IntegerField(default=0,
+             validators=[
+                MaxValueValidator(12),
+                MinValueValidator(0)
+        ]) 
+    human_tag = models.IntegerField(choices=CHOICES,db_index=True)
   
+  
+    def get_human_tag(self):
+         d =dict(self.CHOICES)
+         return d[self.human_tag]
+         
     def __str__(self):
          return self.codename
 
@@ -25,6 +35,7 @@ class Pictogram(models.Model):
 class Tip (models.Model):
     physical_warnig =  models.TextField()
     health_safe = models.TextField()
+    combinations = models.ManyToManyField("self",blank=True)
     
     def __str__(self):
       return self.physical_warnig 
@@ -59,9 +70,7 @@ class Component(models.Model):
     marketing_name = models.CharField(max_length=250) 
     SGAIndicator = models.ManyToManyField(SGAIndicator)
     
-    def get_build_label(self):
-        return  get_label_component(self)
-          
+
     def __str__(self):
       return self.marketing_name
 
@@ -79,8 +88,6 @@ class Sustance(models.Model):
     componets = models.ManyToManyField(Component)
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE)
     
-    def get_build_label(self):
-        return get_label_sustance(self)
     
      
     def __str__(self):
