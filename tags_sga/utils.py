@@ -11,7 +11,9 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from tags_sga.models import (SGAIndicator,
                               Category,
-                              Pictogram
+                              Pictogram,
+                              Tip,
+                              Prudence
                               )
 
 
@@ -59,24 +61,52 @@ def render_pdf_view(request, name,  template_path, context):
 
 
 
+def get_combinate_tips(tips):
+    tips_list=[]
+    tips_cleaning=[]
+    tips_combinations=Tip.objects.filter(combinations__in=tips).distinct()
+    for comb in  tips_combinations:
+        list_comb=comb.combinations.all()
+        for ictips in list_comb:
+            if ictips in tips:
+                 tips_cleaning.append(ictips.pk)
+                     
+        if len(tips_cleaning) == len(list_comb):
+            # remove child tips and add father tip
+            tips=tips.exclude(id__in=tips_cleaning)
+            tips_list.append(comb)
+        else:
+            tips_cleaning.clear() 
+                
+    for tip in tips:
+        tips_list.append(tip)  
+        
+    return tips_list    
 
 def get_label_component(components):
+
     indicators = SGAIndicator.objects.filter(component__in=components).distinct()
     warnigns_categories =  Category.objects.filter(sgaindicator__in=indicators)
     pictugram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag')
-    return (indicators,warnigns_categories,pictugram)
+    tips = Tip.objects.filter(category__in=warnigns_categories).distinct()
+    prudence = Prudence.objects.filter(category__in=warnigns_categories)
+    
+    tips=get_combinate_tips(tips)
+      
+        
+    return (indicators,warnigns_categories,pictugram,tips,prudence)
 
 
 def get_label_sustance(sustance):
-    (indicators,warnigns_categories,pictugram)=get_label_component(sustance.componets.all())
+    (indicators,warnigns_categories,pictugram,tips,prudence)=get_label_component(sustance.componets.all())
     
     label = {# list of values kept on product label
     'sustance': sustance.marketing_name,
     'pictograms': pictugram,
-    'components': sustance.componets,
+    'components': sustance.componets.all(),
     'warning_word': pictugram.first().get_human_tag(),
-    'warning_prudences':"", #prudences
-    'warning_tips':"", #prudences
+    'warning_prudences':prudence, #prudences
+    'warning_tips':tips, #prudences
     }
     return label
     
