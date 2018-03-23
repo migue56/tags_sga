@@ -82,22 +82,33 @@ def get_combinate_tips(tips):
     
     # list tips whitout combinations                
     for tip in tips:
-        tips_list.append(tip)  
+        if tip not in  tips_list:
+            tips_list.append(tip)  
         
     return tips_list    
+
+def get_combinate_prudence(prudence):
+    
+    return prudence
+
+   
 def get_pictograms(pictogram):
     
     return pictogram
+
 def get_label_component(components):
 
     indicators = SGAIndicator.objects.filter(component__in=components).distinct()
     warnigns_categories =  Category.objects.filter(sgaindicator__in=indicators)
     pictogram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag').distinct()
     tips = Tip.objects.filter(category__in=warnigns_categories).distinct()
-    prudence = Prudence.objects.filter(category__in=warnigns_categories)
+    prudence = Prudence.objects.filter(category__in=warnigns_categories).distinct()
     
+    
+    # Processing data
     tips=get_combinate_tips(tips)
     pictogram=get_pictograms(pictogram)
+    prudence=get_combinate_prudence(prudence)
       
         
     return (indicators,warnigns_categories,pictogram,tips,prudence)
@@ -107,8 +118,11 @@ def get_label_sustance(sustance):
     (indicators,warnigns_categories,pictogram,tips,prudence)=get_label_component(sustance.componets.all())
     
     label = {# list of values kept on product label
-    'sustance': sustance.marketing_name,
+    'sustance_code': sustance.cas_number,
+    'sustance_name': sustance.marketing_name,
+    'provider': sustance.provider,
     'pictograms': pictogram,
+    'pictograms_size': 100/len(pictogram),
     'components': sustance.componets.all(),
     'warning_word': pictogram.first().get_human_tag(),
     'warning_prudences':prudence, #prudences
