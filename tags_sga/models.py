@@ -13,8 +13,8 @@ class Pictogram(models.Model):
         (ATTENTION,_('Attention')),
     )
     codename = models.CharField(max_length=100,primary_key=True)
-    ilustrator_sga = models.FileField(upload_to='static/pictograms/',blank=True, null=True) 
-    ilustrator_oit = models.FileField(upload_to='static/pictograms/',blank=True, null=True)
+    ilustrator_sga = models.FileField(upload_to='pictograms/',blank=True, null=True) 
+    ilustrator_oit = models.FileField(upload_to='pictograms/',blank=True, null=True)
     warning_level = models.IntegerField(default=0,
              validators=[
                 MaxValueValidator(12),
@@ -34,7 +34,7 @@ class Pictogram(models.Model):
 #consejo    
 class Tip (models.Model):
     physical_warnig =  models.TextField()
-    combinations = models.ManyToManyField("self",blank=True)
+    combinations = models.ManyToManyField("self",blank=True) # MPTT
     
     def __str__(self):
       return self.physical_warnig 

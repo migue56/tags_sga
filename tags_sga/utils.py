@@ -92,7 +92,7 @@ def get_label_component(components):
 
     indicators = SGAIndicator.objects.filter(component__in=components).distinct()
     warnigns_categories =  Category.objects.filter(sgaindicator__in=indicators)
-    pictogram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag')
+    pictogram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag').distinct()
     tips = Tip.objects.filter(category__in=warnigns_categories).distinct()
     prudence = Prudence.objects.filter(category__in=warnigns_categories)
     
