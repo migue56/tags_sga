@@ -62,9 +62,10 @@ def render_pdf_view(request, name,  template_path, context):
 
 
 def get_combinate_tips(tips):
-    tips_list=[]
-    tips_cleaning=[]
-    tips_combinations=Tip.objects.filter(combinations__in=tips).distinct()
+    tips_list=[] # list with finaly tips
+    tips_cleaning=[] # list with check and clean tips by combinations
+    # Get tips with combinations and order by combinations count
+    tips_combinations=Tip.objects.filter(combinations__in=tips).order_by('-combinations').distinct()
     for comb in  tips_combinations:
         list_comb=comb.combinations.all()
         for ictips in list_comb:
@@ -74,37 +75,42 @@ def get_combinate_tips(tips):
         if len(tips_cleaning) == len(list_comb):
             # remove child tips and add father tip
             tips=tips.exclude(id__in=tips_cleaning)
-            tips_list.append(comb)
+            if comb not in  tips_list:
+                 tips_list.append(comb)
         else:
             tips_cleaning.clear() 
-                
+    
+    # list tips whitout combinations                
     for tip in tips:
         tips_list.append(tip)  
         
     return tips_list    
-
+def get_pictograms(pictogram):
+    
+    return pictogram
 def get_label_component(components):
 
     indicators = SGAIndicator.objects.filter(component__in=components).distinct()
     warnigns_categories =  Category.objects.filter(sgaindicator__in=indicators)
-    pictugram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag')
+    pictogram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag')
     tips = Tip.objects.filter(category__in=warnigns_categories).distinct()
     prudence = Prudence.objects.filter(category__in=warnigns_categories)
     
     tips=get_combinate_tips(tips)
+    pictogram=get_pictograms(pictogram)
       
         
-    return (indicators,warnigns_categories,pictugram,tips,prudence)
+    return (indicators,warnigns_categories,pictogram,tips,prudence)
 
 
 def get_label_sustance(sustance):
-    (indicators,warnigns_categories,pictugram,tips,prudence)=get_label_component(sustance.componets.all())
+    (indicators,warnigns_categories,pictogram,tips,prudence)=get_label_component(sustance.componets.all())
     
     label = {# list of values kept on product label
     'sustance': sustance.marketing_name,
-    'pictograms': pictugram,
+    'pictograms': pictogram,
     'components': sustance.componets.all(),
-    'warning_word': pictugram.first().get_human_tag(),
+    'warning_word': pictogram.first().get_human_tag(),
     'warning_prudences':prudence, #prudences
     'warning_tips':tips, #prudences
     }
