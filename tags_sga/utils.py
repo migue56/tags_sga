@@ -13,7 +13,8 @@ from tags_sga.models import (SGAIndicator,
                               Category,
                               Pictogram,
                               Tip,
-                              Prudence
+                              Prudence,
+                              Product
                               )
 
 
@@ -91,6 +92,7 @@ def get_combinate_prudence(prudence):
     
     return prudence
 
+
    
 def get_pictograms(pictogram):
     
@@ -104,7 +106,6 @@ def get_label_component(components):
     tips = Tip.objects.filter(category__in=warnigns_categories).distinct()
     prudence = Prudence.objects.filter(category__in=warnigns_categories).distinct()
     
-    
     # Processing data
     tips=get_combinate_tips(tips)
     pictogram=get_pictograms(pictogram)
@@ -117,12 +118,14 @@ def get_label_component(components):
 def get_label_sustance(sustance):
     (indicators,warnigns_categories,pictogram,tips,prudence)=get_label_component(sustance.componets.all())
     
+    
     label = {# list of values kept on product label
     'sustance_code': sustance.cas_number,
     'sustance_name': sustance.marketing_name,
+    'sustance_instructions': '',
     'provider': sustance.provider,
     'pictograms': pictogram,
-    'pictograms_size': 100/len(pictogram),
+    'pictograms_size': 150/len(pictogram),
     'components': sustance.componets.all(),
     'warning_word': pictogram.first().get_human_tag(),
     'warning_prudences':prudence, #prudences

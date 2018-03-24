@@ -8,7 +8,9 @@ from django.db import models
 class Pictogram(models.Model):
     DANGER = 5
     ATTENTION = 1
+    EMPTY=0
     CHOICES = ( 
+         (EMPTY,_('---')),
         ( DANGER,_('Danger')),
         (ATTENTION,_('Attention')),
     )
@@ -20,12 +22,14 @@ class Pictogram(models.Model):
                 MaxValueValidator(12),
                 MinValueValidator(0)
         ]) 
-    human_tag = models.IntegerField(choices=CHOICES,db_index=True)
+    human_tag = models.IntegerField(choices=CHOICES,default=EMPTY, db_index=True)
   
   
     def get_human_tag(self):
          d =dict(self.CHOICES)
-         return d[self.human_tag]
+         if self.human_tag!=self.EMPTY:
+            return d[self.human_tag]
+         return ""
          
     def __str__(self):
          return self.codename
@@ -33,11 +37,12 @@ class Pictogram(models.Model):
     
 #consejo    
 class Tip (models.Model):
+    codename = models.CharField(max_length=200)
     physical_warnig =  models.TextField()
-    combinations = models.ManyToManyField("self",blank=True) # MPTT
+    combinations = models.ManyToManyField("self",blank=True, verbose_name=_("Children to combinations tips")) # MPTT
     
     def __str__(self):
-      return self.physical_warnig 
+      return "%s:%s"%(self.codename,self.physical_warnig) 
   
 # prudencia    
 class Prudence(models.Model):   
@@ -85,9 +90,22 @@ class Sustance(models.Model):
     marketing_name = models.CharField(max_length=250) 
     cas_number = models.CharField(max_length=150)
     componets = models.ManyToManyField(Component)
+    use_instructions=models.TextField(max_length=500)
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE)
     
+    def __str__(self):
+      return "%s:%s"%(self.cas_number,self.marketing_name)    
     
+class Product(models.Model):
+    sustance = models.ForeignKey(Sustance,null=False,blank=False, on_delete=models.CASCADE)
+    loading_date = models.DateField(_("Date loading"))
+    expiration_date = models.DateField(_("Date expiration"))
+    tare=models.CharField(max_length=250) 
+    lot_number=models.CharField(max_length=250) 
+    gross_weight=models.CharField(max_length=250) 
      
     def __str__(self):
-      return self.marketing_name      
+      return "%s, %s"%(self.sustance.marketing_name,self.gross_weight)
+  
+  
+  
