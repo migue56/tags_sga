@@ -33,7 +33,7 @@ def make_tag_packing_pdf(modeladmin, request, queryset):
          print (label)
          context ={'obj': label}
          return render_pdf_view(request, "etiqueta", 
-                           'tag_ packing.html', context)
+                           'tags/tag_ packing.html', context)
 make_tag_packing_pdf.short_description = "Download packing label"
 
 
