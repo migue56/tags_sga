@@ -66,46 +66,63 @@ def get_combinate_tips(tips):
     tips_list=[] # list with finaly tips
     tips_cleaning=[] # list with check and clean tips by combinations
     # Get tips with combinations and order by combinations count
-    tips_combinations=Tip.objects.filter(combinations__in=tips).order_by('-combinations').distinct()
-    for comb in  tips_combinations:
-        list_comb=comb.combinations.all()
-        for ictips in list_comb:
-            if ictips in tips:
-                 tips_cleaning.append(ictips.pk)
-                     
-        if len(tips_cleaning) == len(list_comb):
-            # remove child tips and add father tip
-            tips=tips.exclude(id__in=tips_cleaning)
-            if comb not in  tips_list:
-                 tips_list.append(comb)
-        else:
-            tips_cleaning.clear() 
-    
-    # list tips whitout combinations                
-    for tip in tips:
-        if tip not in  tips_list:
-            tips_list.append(tip)  
+    if tips: 
+        tips_combinations=tips._addSpecial( "$orderby", { 'combinations' : -1 } )
+        for comb in  tips_combinations:
+            list_comb=comb.combinations.all()
+            for ictips in list_comb:
+                if ictips in tips:
+                     tips_cleaning.append(ictips.pk)
+                         
+            if len(tips_cleaning) == len(list_comb):
+                # remove child tips and add father tip
+                tips=tips.exclude(id__in=tips_cleaning)
+                if comb not in  tips_list:
+                     tips_list.append(comb)
+            else:
+                tips_cleaning.clear() 
+        
+        # list tips whitout combinations                
+        for tip in tips:
+            if tip not in  tips_list:
+                tips_list.append(tip)  
         
     return tips_list    
 
 def get_combinate_prudence(prudence):
+    prudence_list=[]
+    if prudence:
+        return prudence
     
-    return prudence
+    return prudence_list
 
 
    
 def get_pictograms(pictogram):
+    pictogram_list=[]
+    if pictogram:
+        return pictogram
     
-    return pictogram
+    return pictogram_list
 
 def get_label_component(components):
 
-    indicators = SGAIndicator.objects.filter(component__in=components).distinct()
-    warnigns_categories =  Category.objects.filter(sgaindicator__in=indicators)
-    pictogram = Pictogram.objects.filter(category__in=warnigns_categories).order_by('-human_tag').distinct()
-    tips = Tip.objects.filter(category__in=warnigns_categories).distinct()
-    prudence = Prudence.objects.filter(category__in=warnigns_categories).distinct()
+    indicators = SGAIndicator.objects.raw({'component': { '$in': components} })
+    warnigns_categories =  Category.objects.raw( { 'sgaindicator': { '$in': indicators}} )
     
+    if not warnigns_categories :
+         pictogram = warnigns_categories.pictogram._addSpecial( "$orderby", { 'human_tag' : -1 } )
+    else: pictogram=None     
+    
+    if not warnigns_categories :
+         tips = warnigns_categories.tip
+    else: tips=None     
+        
+        
+    if not warnigns_categories :
+         prudence = warnigns_categories.prudence
+    else: prudence=None     
+            
     # Processing data
     tips=get_combinate_tips(tips)
     pictogram=get_pictograms(pictogram)
@@ -116,7 +133,7 @@ def get_label_component(components):
 
 
 def get_label_sustance(sustance):
-    (indicators,warnigns_categories,pictogram,tips,prudence)=get_label_component(sustance.componets.all())
+    (indicators,warnigns_categories,pictogram,tips,prudence)=get_label_component(sustance.componets)
     
     
     label = {# list of values kept on product label
@@ -125,9 +142,9 @@ def get_label_sustance(sustance):
     'sustance_instructions': '',
     'provider': sustance.provider,
     'pictograms': pictogram,
-    'pictograms_size': 150/len(pictogram),
-    'components': sustance.componets.all(),
-    'warning_word': pictogram.first().get_human_tag(),
+    'pictograms_size': 150/ ( len(pictogram) if len(pictogram)>0 else 1 ),
+    'components': sustance.componets,
+    'warning_word': pictogram.first().get_human_tag()  if len(pictogram)>0 else "",
     'warning_prudences':prudence, #prudences
     'warning_tips':tips, #prudences
     }

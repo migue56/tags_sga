@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'crispy_forms',
-    'cruds_adminlte',
+    'bootstrapform',
+    'pymodm',
     'tags_sga',
 ]
 
@@ -83,7 +83,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
@@ -126,4 +125,6 @@ STATIC_ROOT='static/'
 
 MEDIA_URL='/media/'
 MEDIA_ROOT='media/'
+
+
 

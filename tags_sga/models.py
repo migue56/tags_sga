@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db.models import Manager
 
 
 from pymongo import TEXT
@@ -12,6 +12,12 @@ from pymodm.files import FieldFile
 
 connect('mongodb://localhost:27017/tags_sga')
 
+class defaultManager(Manager):
+    def get_queryset(self):
+        # Override get_queryset, so that every QuerySet created will
+        # have this filter applied.
+        return super(defaultManager, self).get_queryset().raw()
+
 class Pictogram(EmbeddedMongoModel):
     DANGER = 5
     ATTENTION = 1
@@ -22,8 +28,8 @@ class Pictogram(EmbeddedMongoModel):
         (ATTENTION,_('Attention')),
     )
     codename =  fields.CharField(primary_key=True)
-    ilustrator_sga = fields.CharField() #fields.FieldFile(upload_to='pictograms/',blank=True, null=True) 
-    ilustrator_oit = fields.CharField() #fields.FieldFile(upload_to='pictograms/',blank=True, null=True)
+    ilustrator_sga = fields.FileField(verbose_name="%s"%_('SGA Ilustration'),mongo_name='isga',storage='pictograms/') #fields.FieldFile(upload_to='pictograms/',blank=True, null=True) 
+    ilustrator_oit = fields.FileField(verbose_name="%s"%_('OIT Ilustration'),mongo_name='ioit',storage='pictograms/') #fields.FieldFile(upload_to='pictograms/',blank=True, null=True)
     warning_level = fields.IntegerField(default=0,min_value=0,max_value=12)
     human_tag = fields.IntegerField(choices=CHOICES,default=EMPTY)
 
@@ -45,15 +51,16 @@ class Pictogram(EmbeddedMongoModel):
 class Tip (EmbeddedMongoModel):
     codename = fields.CharField(max_length=200)
     physical_warnig =  fields.CharField()
-    combinations = models.ManyToManyField("self",blank=True, verbose_name=_("Children to combinations tips")) # MPTT
+    combinations = fields.ListField(fields.ReferenceField('Tip')) # MPTT
+
+
+    def __str__(self):
+      return "%s:%s"%(self.codename,self.physical_warnig) 
 
     class Meta:
         indexes = [IndexModel([('codename', TEXT)])]
-
-    
-    def __str__(self):
-      return "%s:%s"%(self.codename,self.physical_warnig) 
-  
+        
+          
 # prudencia    
 class Prudence(EmbeddedMongoModel):   
     codename = fields.CharField(primary_key=True)
@@ -102,20 +109,20 @@ class Provider(EmbeddedMongoModel):
 class Sustance(MongoModel):
     marketing_name = fields.CharField(max_length=250) 
     cas_number = fields.CharField(max_length=150)
-    componets = EmbeddedDocumentListField('Component')
+    componets = fields.EmbeddedDocumentListField('Component')
     use_instructions=fields.CharField(max_length=500)
-    provider = EmbeddedDocumentListField('Provider')
+    provider = fields.EmbeddedDocumentListField('Provider')
     
     def __str__(self):
       return "%s:%s"%(self.cas_number,self.marketing_name)    
     
-# class Product(models.Model):
+class Product(MongoModel):
 #     sustance = models.ForeignKey(Sustance,null=False,blank=False, on_delete=models.CASCADE)
-#     loading_date = models.DateField(_("Date loading"))
-#     expiration_date = models.DateField(_("Date expiration"))
-#     tare=models.CharField(max_length=250) 
-#     lot_number=models.CharField(max_length=250) 
-#     gross_weight=models.CharField(max_length=250) 
+     loading_date = fields.DateTimeField()
+     expiration_date = fields.DateTimeField()
+     tare=fields.CharField(max_length=250) 
+     lot_number=fields.CharField(max_length=250) 
+     gross_weight=fields.CharField(max_length=250) 
      
 #     def __str__(self):
 #       return "%s, %s"%(self.sustance.marketing_name,self.gross_weight)

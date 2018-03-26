@@ -17,10 +17,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
 
+
+from tags_sga import urls as urls_sga
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('',include(urls_sga)),
+
+    url(r'^login/$', auth_views.login,
+        {'template_name': 'login.html'}, name='login'),
+    
+    url(r'^logout/$', auth_views.logout, {
+        'next_page': 'sustance/'},
+        name='logout'),
 
 ]

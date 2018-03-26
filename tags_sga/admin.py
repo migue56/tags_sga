@@ -8,7 +8,7 @@ from .models import (
     Component,
     Sustance,
     Provider,
-    Product,
+    #Product,
     )
 
 from .utils import (render_pdf_view,
@@ -41,6 +41,11 @@ make_tag_packing_pdf.short_description = "Download packing label"
 class SustanceAdmin(admin.ModelAdmin):
     actions = [make_tag_pdf,make_tag_packing_pdf]
 
+    def get_queryset(self, request):
+        qs = super(SustanceAdmin, self).get_queryset(request)
+        print (qs)
+
+    
 class TipsAdmin(admin.ModelAdmin):
     model = Tip
     filter_horizontal = ('combinations',)         
@@ -50,14 +55,14 @@ class CategoryAdmin(admin.ModelAdmin):
     model = Category
     filter_horizontal = ('warning_class','tips','prudence','pictogram')   
 
-
-admin.site.register(Sustance,SustanceAdmin) # sustance
-admin.site.register(Component) # sustance
-admin.site.register(Pictogram) # SGA Control
-
-admin.site.register(Product) # SGA Control
-admin.site.register(Tip,TipsAdmin) # SGA Control
-admin.site.register(Prudence) # SGA Control
-admin.site.register(Category,CategoryAdmin) # SGA Control
-admin.site.register(SGAIndicator)
-admin.site.register(Provider)
+# 
+#admin.site.register(Sustance,SustanceAdmin) # sustance
+#admin.site.register(Component) # sustance
+# admin.site.register(Pictogram) # SGA Control
+# 
+# admin.site.register(Product) # SGA Control
+# admin.site.register(Tip,TipsAdmin) # SGA Control
+# admin.site.register(Prudence) # SGA Control
+# admin.site.register(Category,CategoryAdmin) # SGA Control
+# admin.site.register(SGAIndicator)
+# admin.site.register(Provider)
