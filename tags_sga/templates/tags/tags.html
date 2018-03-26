@@ -1,0 +1,86 @@
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+    @page {
+        size: letter portrait;
+
+        @frame header_left_frame {         
+            -pdf-frame-content: header_left_content;
+            left: 44pt; width: 245pt; top: 50pt; height: 40pt;
+        }
+        @frame header_right_frame {            
+            -pdf-frame-content: header_right_content;
+            left: 300pt; width: 242pt; top: 50pt; height: 40pt;
+        }
+
+
+        @frame pictogram_frame {   
+            -pdf-frame-content: pictogram_content;
+            left: 44pt; width: 245pt; top: 90pt; height: 132pt;
+        }
+        @frame warning_frame {            
+            -pdf-frame-content: warning_content;
+            left: 300pt; width: 242pt;  top: 90pt; height: 132pt;  
+        }
+         @frame content_frame {             /* Content frame 1 */
+            left: 44pt; width: 512pt; top: 222pt; height: 128pt;
+        }
+
+        @frame footer_frame {           
+            -pdf-frame-content: footer_content;
+            left: 44pt; width: 512pt; top: 340pt; height: 40pt;
+        }
+    }
+.title_name{
+    color: #fff; 
+    background-color: #000;
+    text-align: center;
+    padding: 5pt;
+}
+.warning_text {
+    color: red;
+    font-size: 14pt;
+}
+#header_right_content {
+    text-align: center;
+}
+
+#warning_content{
+ text-align: center;
+}
+</style>
+<head>
+<body>
+    <div id="header_left_content" > 
+       <p class="title_name"  >cas:{{obj.sustance_code}} </br> {{obj.sustance_name}}</p> 
+    </div>
+    <div id="header_right_content">
+        {% for comp in obj.components %}
+            {{comp}}<br>
+        {% endfor %}
+
+    </div>
+    <div id="pictogram_content">
+        {% for dind in obj.pictograms %}
+                <img width="{{obj.pictograms_size}}pt" heigth="{{obj.pictograms_size}}pt" src="media/{{dind.ilustrator_sga}}" ></img>
+        {% endfor %}
+    </div>
+    <div id="warning_content">
+        <p class="warning_text"> {{ obj.warning_word }} </p>
+        {% for dind in obj.warning_tips %}
+            <p>{{dind.physical_warnig}}</p>
+        {% endfor %}
+    </div>
+    <div id="content"> 
+        {% for dind in obj.warning_prudences %}
+                <p>{{dind.general_help}}</p>
+        {% endfor %}
+    </div>
+    <div id="footer_content">
+     <p>{{obj.provider.name}}. {{obj.provider.address}}. {{obj.provider.phone}}. <br>
+     Emergencias 9-1-1, centro nacional de intoxicaciones 506-2223-1028.</p>
+    </div>
+
+</body>
+</html>
