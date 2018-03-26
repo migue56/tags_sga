@@ -1,0 +1,33 @@
+<!-- -*- mode: jinja2 -*- -->
+{% extends "base.html" %}
+{% if sustance %}
+  <div class="post-container">
+    <h2 class="post-title">
+      <a href="/sustenace/{{ sustance.pk }}">{{ sustance.marketing_name }}</a>
+    </h2>
+  </div>
+{% endif %}
+
+
+
+
+{% block title %}My Sustances{% endblock %}
+{% block body %}
+  {% if 'user' in session %}
+    <p>Logged in as  <a href="/logout">Log out</a></p>
+  {% else %}
+    <p>You are not <a href="/login">logged in</a>.</p>
+  {% endif %}
+  {% if object_list %}
+    <ul class="post-list">
+      {% for sustance in object_list %}
+        <li class="post-item">
+         <a href="{% url 'sustance-detail' sustance.pk %}">  {{ sustance }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="no-posts">Nothing to see yet! Come back soon and check for updates.</p>
+  {% endif %}
+  <a href="/posts/new">Create a new post.</a>
+{% endblock %}

@@ -23,7 +23,7 @@ def make_tag_pdf(modeladmin, request, queryset):
          print (label)
          context ={'obj': label}
          return render_pdf_view(request, "etiqueta", 
-                           'tags.html', context)
+                           'tags/tags.html', context)
 make_tag_pdf.short_description = "Download genenic label"
 
 

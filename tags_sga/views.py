@@ -65,7 +65,7 @@ def Sustance_pdf(request, sustance_pk):
          object = Sustance.objects.get({'_id':sustance_pk})
          label= get_label_sustance(object) 
          context ={'obj': label}
-         return render_pdf_view(request, "etiqueta", 'tag_packing.html', context)
+         return render_pdf_view(request, "etiqueta", 'tags/tag_packing.html', context)
     except Sustance.DoesNotExist:
         raise Http404("Sustance does not exist")
     return render(request, 'detail.html', {'sustance': p})
