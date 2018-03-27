@@ -18,7 +18,7 @@ class defaultManager(Manager):
         # have this filter applied.
         return super(defaultManager, self).get_queryset().raw()
 
-class Pictogram(EmbeddedMongoModel):
+class Pictogram(MongoModel):
     DANGER = 5
     ATTENTION = 1
     EMPTY=0
@@ -48,9 +48,9 @@ class Pictogram(EmbeddedMongoModel):
 
     
 #consejo    
-class Tip (EmbeddedMongoModel):
+class Tip (MongoModel):
     codename = fields.CharField(max_length=200)
-    physical_warnig =  fields.CharField()
+    physical_warning =  fields.CharField()
     combinations = fields.ListField(fields.ReferenceField('Tip')) # MPTT
 
 
@@ -62,7 +62,7 @@ class Tip (EmbeddedMongoModel):
         
           
 # prudencia    
-class Prudence(EmbeddedMongoModel):   
+class Prudence(MongoModel):   
     codename = fields.CharField(primary_key=True)
     general_help = fields.CharField()
     conditions_use = fields.CharField()
@@ -73,9 +73,9 @@ class Prudence(EmbeddedMongoModel):
 class Category (MongoModel):
     codename = fields.CharField(max_length=150)  # División 1.1
     warning_class =  fields.ListField(fields.ReferenceField('Category')) # Explosivos (capítulo 2.1)
-    tips = fields.EmbeddedDocumentListField('Tip')
-    prudence = fields.EmbeddedDocumentListField('Prudence')
-    pictogram = fields.EmbeddedDocumentListField('Pictogram')
+    tips = fields.ListField(fields.ReferenceField('Tip'))
+    prudence = fields.ListField(fields.ReferenceField('Prudence'))
+    pictogram = fields.ListField(fields.ReferenceField('Pictogram'))
 
     class Meta:
         indexes = [IndexModel([('codename', TEXT)])]
@@ -90,9 +90,9 @@ class SGAIndicator(MongoModel):
     def __str__(self):
       return self.codename
   
-class Component(EmbeddedMongoModel):
+class Component(MongoModel):
     marketing_name = fields.CharField(max_length=250) 
-    SGAIndicator = fields.ListField(fields.ReferenceField('SGAIndicator')) 
+    sga_indicators = fields.ListField(fields.ReferenceField('SGAIndicator')) 
     
 
     def __str__(self):
@@ -109,7 +109,7 @@ class Provider(EmbeddedMongoModel):
 class Sustance(MongoModel):
     marketing_name = fields.CharField(max_length=250) 
     cas_number = fields.CharField(max_length=150)
-    componets = fields.EmbeddedDocumentListField('Component')
+    components = fields.EmbeddedDocumentListField('Component')
     use_instructions=fields.CharField(max_length=500)
     provider = fields.EmbeddedDocumentListField('Provider')
     

@@ -114,28 +114,24 @@
        </div>
        
         <div id="Instructions_content" class ="body_text body_left text_bold "  >
-        {% if  obj.sustance_instructions %}
             <h3>{% trans 'Instructions of use'|upper  %}:</h3>
         	      {% for dind in obj.sustance_instructions %}
 	              <p> {{dind.conditions_use}} </p>
-	             {% endfor %}
-	    {% endif %}         
+	             {% endfor %}       
 	  </div>   
        <div id="footer_left_content"  class ="body_text body_left text_bold"  >
-        {% if  obj.sustance_instructions %}
 	         <p>{% trans 'Tare' %}:</p>
 	         <p>{% trans 'Gross weight' %}:</p>
 	         <p>{% trans 'Expiration date' %}:</p>
 	         <p> {% trans 'Lot number' %}:</p>
 	         <p> {% trans 'Loading date' %}:</p>
-         {% endif  %}
        </div>
        
     </div>
     <div id="header_center_content">
         <div id="pictogram_content" class="text_bold">
 		        {% for dind in obj.pictograms %}
-		                <img width="150pt" heigth="150pt" src="media/{{dind.ilustrator_sga}}" ></img>
+		                <img width="150pt" heigth="150pt" src="media/{{dind.ilustrator_sga.file_id}}" ></img>
 		        {% endfor %}
 		         </br>
         </div>
@@ -149,14 +145,14 @@
          </div>
           <div id="tips_content" class="body_text body_left text_bold">
 		        {% for dind in obj.warning_tips %}
-	                   <p>{{dind.physical_warnig}}</p>
+	                   <p>{{dind.physical_warning}}</p>
 	            {% endfor %} 
         </div>
     </div>
     <div id="header_right_content">
             <div id="pictogram_oit_content" class="text_bold">
 		        {% for dind in obj.pictograms %}
-		                <img width="150pt" heigth="150pt" src="media/{{dind.ilustrator_oit}}" ></img>
+		                <img width="150pt" heigth="150pt" src="media/{{dind.ilustrator_oit.file_id}}" ></img>
 		        {% endfor %}
 		         </br>
         </div>
