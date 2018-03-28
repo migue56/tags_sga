@@ -7,13 +7,14 @@ from django.urls import reverse_lazy
 
 
 from .views import   Sustance_detail,Sustance_pdf
-from .views import ListSustanceView, CreateSustanceView
+from .views import ListSustanceView, CreateSustanceView, UpdateSustanceView
 
 urlpatterns = [
      path('sustance/',ListSustanceView.as_view(), name="sustance-list"),
      path('sustance/detail/<str:sustance_pk>/', Sustance_detail, name="sustance-detail"),
      path('sustance/generate/<str:sustance_pk>/', Sustance_pdf, name="sustance-generate"),
-     path('sustance/create', CreateSustanceView.as_view(), name='create_sustance'),
+     path('sustance/create', CreateSustanceView.as_view(), name='sustance_create'),
+     path('sustance/update/<str:sustance_pk>/', UpdateSustanceView.as_view(), name='sustance_update'),
 ]
 
 # login actions

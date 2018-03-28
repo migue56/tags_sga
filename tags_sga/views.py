@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django import forms
-from django.http import HttpResponseForbidden, Http404
+from django.http import HttpResponseForbidden, Http404, HttpResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.decorators import method_decorator
@@ -24,27 +24,44 @@ from .models import (
     )
 from .utils import (render_pdf_view,
                     get_label_sustance)
-
 from .form import SustanceForm
-
 from django.views.decorators.http import require_http_methods
 
 
 from django.views.generic import View
+from django.http.response import HttpResponseRedirect
 
 
     
-class CreateSustanceView(CreateView):
+class CreateSustanceView(View):
     template_name = 'sustance/sustance_form.html'
-    form_class = SustanceForm
-    model = Sustance
-    success_url = 'sustance/'
+    success_url = '/'
+    def get(self, request):
+        form = SustanceForm()
+        print (form.__dict__)
+        return render(request, self.template_name, {'form':form})
 
-    def form_valid(self, form):
-        return super().form_valid(form)
+    def post(self, request):
+        form  = SustanceForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data 
+            return HttpResponseRedirect(self.success_url)
+        return HttpResponse("Error")
 
+class UpdateSustanceView(View):
+    template_name = 'sustance/sustance_form.html'
+    success_url = '/'
+    def get(self, request,sustance_pk):
+        form = SustanceForm()
+        print (form)
+        return render(request, self.template_name, {'form':form})
 
-
+    def post(self, request,sustance_pk):
+        form  = SustanceForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data 
+            return HttpResponseRedirect(self.success_url)
+        return HttpResponse("Error")
         
 class ListSustanceView(ListView):
     template_name = 'sustance/sustance_list.html'
@@ -61,6 +78,17 @@ class ListSustanceView(ListView):
 
         return self.queryset
   
+class DeleteSustanceView(View):
+    template_name = 'sustance/sustance_confirm_delete.html'
+    success_url = '/'
+    def get(self, request):
+        form = SustanceForm()
+        return render(request, self.template_name)
+
+    def post(self, request):
+        form  = SustanceForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(self.success_url)
     
 # ----------------------------------------
        
