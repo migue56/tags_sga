@@ -69,9 +69,13 @@ class Prudence(MongoModel):
     class Meta:
         indexes = [IndexModel([('codename', TEXT)])]
 
+class Warning_class(MongoModel):
+    codename = fields.CharField(max_length=200)  # División 1.1
+    prudence = fields.ListField(fields.ReferenceField('Prudence'))
+    
 class Category (MongoModel):
     codename = fields.CharField(max_length=150)  # División 1.1
-    warning_class =  fields.ListField(fields.ReferenceField('Category')) # Explosivos (capítulo 2.1)
+    warning_classes =  fields.ListField(fields.ReferenceField('Warning_class')) # Explosivos (capítulo 2.1)
     tips = fields.ListField(fields.ReferenceField('Tip'))
     prudence = fields.ListField(fields.ReferenceField('Prudence'))
     pictogram = fields.ListField(fields.ReferenceField('Pictogram'))
@@ -94,6 +98,7 @@ class Component(MongoModel):
     marketing_name = fields.CharField(max_length=250) 
     cas_number = fields.CharField(max_length=150)
     sga_indicators = fields.ListField(fields.ReferenceField('SGAIndicator')) 
+    warning_classes =  fields.ListField(fields.ReferenceField('Warning_class')) # Explosivos (capítulo 2.1)
     
 
     def __str__(self):

@@ -38,8 +38,7 @@ class CreateSustanceView(View):
     success_url = '/'
     def get(self, request):
         form = SustanceForm()
-        print (form.__dict__)
-        return render(request, self.template_name, {'form':form})
+        return render(request, self.template_name, { 'form' : form })
 
     def post(self, request):
         form  = SustanceForm(request.POST)
@@ -52,16 +51,21 @@ class UpdateSustanceView(View):
     template_name = 'sustance/sustance_form.html'
     success_url = '/'
     def get(self, request,sustance_pk):
-        form = SustanceForm()
-        print (form)
-        return render(request, self.template_name, {'form':form})
+        sustance_pk = ObjectId(sustance_pk)
+        obj = Sustance.objects.get({'_id':sustance_pk})
+        if obj:
+            form = SustanceForm(initial=obj)
+            return render(request, self.template_name, { 'form' : form })
+        return Http404
 
     def post(self, request,sustance_pk):
         form  = SustanceForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data 
             return HttpResponseRedirect(self.success_url)
-        return HttpResponse("Error")
+        else:
+            return render(request, self.template_name, { 'form' : form })
+        return Http404
         
 class ListSustanceView(ListView):
     template_name = 'sustance/sustance_list.html'
