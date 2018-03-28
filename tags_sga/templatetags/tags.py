@@ -21,6 +21,6 @@ def get_general_label(sus_pk):
     values = get_label_sustance(obj)
     
     
-    value_body = render_to_string('tags/tag_packing.html', { 'obj': values })
+    value_body = render_to_string('tags/tag_display.html', { 'obj': values })
 
     return value_body

@@ -5,18 +5,22 @@
 
 
 {% block content %}
+  <div class="row" >
+  <ul  class="list-group">
 	  {% if object_list %}
-	    <ul class="post-list">
+	    <li class="row list-group-item">
 	      {% for sustance in object_list %}
-	        <li class="post-item">
-	         <a href="{% url 'sustance-detail' sustance.pk %}">  {{ sustance.marketing_name }}
-	        </li>
+	        <div class="col-md-10">
+	           <a href="{% url 'sustance-detail' sustance.pk %}">  {{ sustance.marketing_name }} </a>
+	        </div>
 	      {% endfor %}
-	    </ul>
+	    </li>
 	  {% else %}
 	    <p class="no-posts">Nothing to see yet! Come back soon and check for updates.</p>
 	  {% endif %}
-	  <a href="{% url 'sustance_create' %}">Create a new Sustance.</a>
+  </ul>	  
+  </div>	  
+ <a href="{% url 'sustance_create' %}">Create a new Sustance.</a>
 {% endblock %}
 
 

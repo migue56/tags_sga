@@ -27,7 +27,7 @@
              href="{% url 'sustance_update' sustance.pk %}">
             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'Edit' %}</a>
           <a class="btn btn-danger"
-             href="{% url 'sustance-generate'  sustance.pk %}">
+             href="{% url 'sustance_delete'  sustance.pk %}">
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>{% trans 'Delete' %}</a>
 		  <button  onclick='location.href="{% url 'sustance-generate' sustance.pk %}?format=html"'   
 		   type="button" class="btn btn-danger">  <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>

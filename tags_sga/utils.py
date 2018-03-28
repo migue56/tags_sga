@@ -61,6 +61,11 @@ def render_pdf_view(request, name,  template_path, context):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+"""
+   List all the tips on the component category
+   
+   Componets: Indicator list of all content on sustance
+"""
 def get_list_components_tips(components):
     tips_list=[]
     for isga in components:
@@ -69,7 +74,13 @@ def get_list_components_tips(components):
             for it in ind_class.tips:
                  tips_list.append(it)
     return tips_list  
-      
+
+"""
+   List all the prudences on the component category
+   
+   Componets: Indicator list of all content on sustance
+   
+"""      
 def get_list_components_prudences(components):
     tips_list=[]
     for isga in components:
@@ -77,7 +88,8 @@ def get_list_components_prudences(components):
         for ind_class in indicators:
                 for icatg in ind_class.warning_categories:
                     for iprudence in icatg.prudence:
-                         tips_list.append(iprudence)
+                        if iprudence not in tips_list: 
+                             tips_list.append(iprudence)
     return tips_list  
 
 def  get_Orderby_Combinations(obj):
@@ -108,9 +120,9 @@ def get_combinate_tips(tips,tips_list,warn_class):
                     # remove child tips and add father tip                    
                     if comb not in  tips_list: # adding the father tips
                         tips_list.append(comb)
-                    
-                    for iclen in tips_cleaning: # adding cancelation of children tips
-                             tips_exclude.append(iclen)
+                     # adding cancelation of children tips
+                    tips_exclude.extend(tips_cleaning) 
+
                              
                 else:
                     tips_cleaning.clear() 
@@ -123,18 +135,19 @@ def get_combinate_tips(tips,tips_list,warn_class):
     sorted(tips_list, key=get_Orderby_Combinations,  reverse=True)    
     return tips_list    
 
-""" Math the list of prudences by class warning and it math with the list of prudences 
-on Indicator classes 
+""" List the Warning Class prudence are out of listed on indicator category 
     warn_class_conten: List of warnigs class on Sustance Content
     warn_class_prudences: List of prudence by Indicaror SGA
 """
 def get_match_content_and_category_produce(warn_class_conten,warn_class_prudences):
     prudence_combinations=[]
-    for icontent_class in warn_class_conten:
-        if icontent_class in warn_class_prudences:
-            if ipr not in prudence_combinations:
-                 prudence_combinations.append(ipr)
-                 print (ipr)
+    for icontent_class in warn_class_prudences: 
+        # find producen not list on inrator to find combinations
+        for ipru in icontent_class.prudence:
+            if ipru not in prudence_combinations and ipru not in warn_class_conten:
+                prudence_combinations.append(ipru)               
+    return prudence_combinations
+     
 """
  Bind list of produce with combinations and remove prudence on combinations list
  prudence: List of prudences of indicator class
@@ -147,48 +160,53 @@ def get_combinate_prudence(prudence,prudence_list,warn_class):
     prudence_exclude=[] # list with check and clean prudence by combinations
     prudence_combinations=[]
     # Get prudence with combinations and order by combinations count
-    if prudence:        
-      
-        prudence_combinations=get_match_content_and_category_produce(prudence,warn_class)
-        print (prudence_combinations)
-        #prudence_combinations=warn_class.prudence  # prudence of warn class
+    if prudence:
+        
+        # listed warning class prudences        
+        prudence_combinations= get_match_content_and_category_produce(prudence,warn_class)
+        
+        #if exist plus prodences on warning class, fiend combinations to prudence
         if prudence_combinations:
+            # order by it have more combinations items like 4,3,2,1
             sorted(prudence_combinations, key=get_Orderby_Combinations,  reverse=True) 
-            for comb in  prudence_combinations:
-                list_comb=comb.combinations # get list of combinations
-                if list_comb:
+            for comb in  prudence_combinations: # search combinations
+                list_comb=comb.combinations # get combinations values
+                if list_comb:  # checking combinations values
                     for icprudence in list_comb:
-                        if icprudence in prudence:
-                             prudence_cleaning.append(icprudence._id)
-                    if len(prudence_cleaning) == len(list_comb):
+                        if icprudence in prudence and icprudence.pk not in prudence_cleaning:
+                             prudence_cleaning.append(icprudence.pk)
+                             
+                    #print ("%i %i"%(len(prudence_cleaning), len(prudence))) 
+                            
+                    if len(prudence_cleaning) <= len(list_comb) and  len(prudence_cleaning) > 1:
                         # remove child prudence and add father tip                    
                         if comb not in  prudence_list: # adding the father prudence
-                            prudence_list.append(comb)
-                        
-                        for iclen in prudence_cleaning: # adding cancelation of children prudence
-                                 prudence_exclude.append(iclen)
-                                 
-                    else:
-                        prudence_cleaning.clear() 
+                                prudence_list.append(comb)                            
+                        prudence_exclude.extend(prudence_cleaning)# adding cancel of children prudenc
+                    prudence_cleaning.clear()  # cleaning pk pre-unlisted        
+                    
         
         # list prudence whitout combinations                
+            #print (prudence_exclude)
             for tip in prudence:
-                if tip not in  prudence_list and tip._id not in prudence_exclude:  # no have been listed s  
-                        prudence_list.append(tip)  
-                    
-        sorted(prudence_list, key=get_Orderby_Combinations,  reverse=True)    
+                if tip not in  prudence_list and str(tip.pk) not in prudence_exclude:  # no have been listed s  
+                    prudence_list.append(tip)    
+        sorted(prudence_list, key=get_Orderby_Combinations,  reverse=True)
     return prudence_list  
 
-# def get_combinate_prudence(prudence,prudence_list):
-#      for obj in  prudence:
-#         if obj not in prudence_list:
-#              prudence_list.append(obj)
-#      return prudence_list
 
 
+"""
+ function order list by humang_tag
+"""
 def get_Orderby_human_tag(obj):
     return obj.human_tag   
 
+"""
+  Find the first pictore to show image and warnig  word
+  pictogram: Data of warnig pictograms
+  pictogram_list: List to set the pictograms files
+"""
 def get_pictograms(pictogram,pictogram_list):
     sorted(pictogram, key=get_Orderby_human_tag,  reverse=True)
     for obj in  pictogram:
@@ -198,11 +216,16 @@ def get_pictograms(pictogram,pictogram_list):
     sorted(pictogram_list, key=get_Orderby_human_tag,  reverse=True)            
     return pictogram_list
 
+"""
+   List all the components
+   
+   Componets: Indicator list of all content on sustance
+   
+"""
 def get_components_indictors(components):
     list_id=[]
     for isga in components:
         list_id.append(str(isga._id))
-        
     return list_id
 
 
@@ -216,19 +239,20 @@ def get_label_component(components):
     prudence_list_ob=get_list_components_prudences(components) # list all components categories 
     
     for isga in components:
+        # search prudence items with warning class of sustance content
+        get_combinate_prudence(prudence_list_ob,prudence_list,isga.warning_classes)
+                
+                
         indicators = isga.sga_indicators
         for ind_class in indicators: # check class indicator
             warnigns_categories =  ind_class.warning_categories
-            for warn_class in warnigns_categories:  #check list of class
-                                    
+            for warn_class in warnigns_categories:  #check list of class            
                 if warn_class.pictogram : # get pictograms of class
                      pictogram = warn_class.pictogram 
                 else: pictogram=None         
                       
                 get_combinate_tips(tips_list_ob,tips_list,warn_class)  # check tips on class
-                
-                get_combinate_prudence(prudence_list_ob,prudence_list,isga.warning_classes)
-                
+           
                 pictogram=get_pictograms(pictogram,pictogram_list)
              
     return (indicators,warnigns_categories,pictogram_list,tips_list,prudence_list)
@@ -247,6 +271,7 @@ def get_label_sustance(sustance):
     'components': sustance.components,
     'warning_word': pictogram[0].get_human_tag()  if len(pictogram)>0 else "",
     'warning_tips':tips, #prudences
+    'warning_prudences':prudence,
     }
     return label
     

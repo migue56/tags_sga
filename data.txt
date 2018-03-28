@@ -1,0 +1,119 @@
+from tags_sga.models import (SGAIndicator,
+                              Category,
+                              Pictogram,
+                              Tip,
+                              Prudence,
+                              Provider,
+                              Product,
+                              Component,
+                              Sustance,
+                              Warning_class,
+                              )
+                              
+pr = Provider(name = "Solutions  SA", phone = "(506)548348 58", address = "Centro de produccion industrial, Alajuel"  )                            
+                             
+wc = Warning_class( codename= "Explosivos (capítulo 2.1)", prudence=[])
+wc.save()
+
+# -------------H200----------------------------------------------------------                      
+pi1 = Pictogram(codename='boom1',warning_level=5,human_tag=5,ilustrator_sga="pictograms/Bomba_explotando_CVN7lNU.gif",ilustrator_oit="pictograms/Trans.e1.1_HsLoiHa.gif")
+pi1.save()
+
+t1 = Tip(codename='H200', physical_warning='Explosivo inestable')
+t1.save()
+
+t2 = Tip(codename='H201', physical_warning='Explosivo; peligro explosión en masa')
+t2.save()
+
+
+p1 = Prudence(codename='P200',general_help='Procurarse las instrucciones antes del uso.')
+p1.save()
+
+p2 = Prudence(codename='P210',general_help="Mantener alejado del calor, superficies calientes, chispas llamas al descubierto y otras fuentes de ignición. No fumar.")
+p2.save()
+
+p6 = Prudence(codename='P0010',general_help="Combinations: No fumar.", 
+combinations=[p1,p2])
+p6.save()
+
+wc.prudence=[p2,p2,p6]
+wc.save()
+
+c1 = Category(codename='Explosivo inestable', tips=[t1],prudence=[p1],pictogram=[pi1], warning_classes=[wc])
+c1.save()
+
+isa1 = SGAIndicator(codename="H200",tips=[t1], warning_categories=[c1])
+isa1.save()
+
+
+co1 = Component (marketing_name='TNT',cas_number='BS-448',warning_classes=[wc], sga_indicators=[isa1])
+co1.save()
+
+su1 = Sustance(marketing_name='Explosivo 400g',components=[co1],cas_number='BS-4548', provider=[pr])
+su1.save()
+
+
+# ------------H201-----------------------------------------------------------
+
+pi2 = Pictogram(codename='boom2',warning_level=5,human_tag=5,ilustrator_sga="pictograms/Bomba_explotando_CVN7lNU.gif",ilustrator_oit="pictograms/Trans.e1.2_we4gnY9.gif")
+pi2.save()
+
+
+
+# ------------H300-----------------------------------------------------------
+pi1 = Pictogram(codename='skull-6',warning_level=6,human_tag=5,ilustrator_sga="pictograms/skull.gif",ilustrator_oit="pictograms/skull6.gif")
+pi1.save()
+
+
+t1 = Tip(codename='H300', physical_warning='Mortal en caso de ingestión')
+t1.save()
+
+t2 = Tip(codename='H310', physical_warning='Mortal en contacto con la piel')
+t2.save()
+
+t3 = Tip(codename='H330', physical_warning='Mortal si se inhala')
+t3.save()
+
+
+t5 = Tip(codename='H300 + H310 +H330',combinations=[t1,t2,t3], physical_warning='Mortal en caso de ingestión, en contacto con la piel o si se inhala')
+t5.save()
+
+
+p1 = Prudence(codename='P300',general_help='Procurarse las instrucciones antes del uso.')
+p1.save()
+
+p2 = Prudence(codename='P302',general_help='Usar guantes/ropa de protección/equipo de protección para los ojos/la cara.')
+p2.save()
+
+
+p6.combinations.append(p1)
+p6.combinations.append(p2)
+p6.save()
+
+wc.prudence.append(p1)
+wc.prudence.append(p2)
+wc.save()
+
+c1 = Category(codename='Explosivo inestable', tips=[t1,t2,t3,t5],prudence=[p1,p2],pictogram=[pi1], warning_classes=[wc])
+c1.save()
+
+
+isa1 = SGAIndicator(codename="H300",tips=[t1], warning_categories=[c1])
+isa1.save()
+
+isa2 = SGAIndicator(codename="H310",tips=[t2], warning_categories=[c1])
+isa2.save()
+
+isa3 = SGAIndicator(codename="H30",tips=[t3], warning_categories=[c1])
+isa3.save()
+
+co1 = Component (marketing_name='TNT',cas_number='BS-4848', warning_classes=[wc], sga_indicators=[isa1,isa2,isa3])
+co1.save()
+
+su1 = Sustance(marketing_name='Veneno',components=[co1], provider=[pr])
+su1.save()
+
+# ------------H300-----------------------------------------------------------
+
+t4 = Tip(codename='H311', physical_warning='Tóxico en contacto con la piel')
+t4.save()

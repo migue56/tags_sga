@@ -35,7 +35,7 @@ from django.http.response import HttpResponseRedirect
     
 class CreateSustanceView(View):
     template_name = 'sustance/sustance_form.html'
-    success_url = '/'
+    success_url = '/sustance/'
     def get(self, request):
         form = SustanceForm()
         return render(request, self.template_name, { 'form' : form })
@@ -49,7 +49,7 @@ class CreateSustanceView(View):
 
 class UpdateSustanceView(View):
     template_name = 'sustance/sustance_form.html'
-    success_url = '/'
+    success_url = '/sustance/'
     def get(self, request,sustance_pk):
         sustance_pk = ObjectId(sustance_pk)
         obj = Sustance.objects.get({'_id':sustance_pk})
@@ -59,9 +59,10 @@ class UpdateSustanceView(View):
         return Http404
 
     def post(self, request,sustance_pk):
-        form  = SustanceForm(request.POST)
+        form  = SustanceForm(initial=request.POST)
         if form.is_valid():
-            data = form.cleaned_data 
+            form.save()
+            print (form)
             return HttpResponseRedirect(self.success_url)
         else:
             return render(request, self.template_name, { 'form' : form })
@@ -84,15 +85,23 @@ class ListSustanceView(ListView):
   
 class DeleteSustanceView(View):
     template_name = 'sustance/sustance_confirm_delete.html'
-    success_url = '/'
-    def get(self, request):
-        form = SustanceForm()
-        return render(request, self.template_name)
+    success_url = '/sustance/'
+    def get(self, request,sustance_pk):
+        sustance_pk = ObjectId(sustance_pk)
+        obj = Sustance.objects.get({'_id':sustance_pk})
+        if obj:
+             return render(request, self.template_name, { 'object' : obj })
+        else:
+            return Http404         
 
-    def post(self, request):
-        form  = SustanceForm(request.POST)
-        if form.is_valid():
+    def post(self, request,sustance_pk):
+        sustance_pk = ObjectId(sustance_pk)
+        obj = Sustance.objects.get({'_id':sustance_pk})
+        if obj:
+            obj.delete()
             return HttpResponseRedirect(self.success_url)
+        else:
+            return Http404
     
 # ----------------------------------------
        
