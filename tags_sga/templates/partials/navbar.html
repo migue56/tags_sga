@@ -1,0 +1,20 @@
+{% load i18n  %}
+
+<nav class="navbar navbar-dark bg-inverse">
+  <a class="navbar-brand" href="{% url 'sustance-list'  %}"><strong id="brand_id">SGA TAGS</strong></a>
+  <ul class="nav navbar-nav">
+    {% if request.user.is_authenticated %}
+      <li><a id='select_id' href="{% url 'sustance-list' %}" title="Select Sustance"><span
+        class="glyphicon glyphicon-cog"></span></a>
+       </li>
+    {% endif %}
+  </ul>
+  <ul class="nav navbar-nav pull-right">
+    {% if request.user.is_authenticated %}
+      <li class="nav-item"><a class="nav-link" href="#">{% trans 'User:' %} {{ request.user.get_username }}</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">{% trans "Log out" %}</a></li>
+    {% else %}
+      <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">{% trans "Log in" %}</a></li>
+    {% endif %}
+  </ul>
+</nav>

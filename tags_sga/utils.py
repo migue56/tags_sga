@@ -61,37 +61,56 @@ def render_pdf_view(request, name,  template_path, context):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+def get_list_tips(components):
+    tips_list=[]
+    for isga in components:
+        indicators = isga.sga_indicators
+        for ind_class in indicators:
+            for it in ind_class.tips:
+                 tips_list.append(it)
+    return tips_list        
+            
+def  get_Orderby_Combinations(obj):
+    return obj.combinations
 
-
-def get_combinate_tips(tips,tips_list):
+"""
+  tips: Are the indcators tips list
+  tips_list: Array result
+  warn_class: Class checking to filters tips var
+  
+"""
+def get_combinate_tips(tips,tips_list,warn_class):
     #tips_list=[] # list with finaly tips
     tips_cleaning=[] # list with check and clean tips by combinations
     tips_exclude=[] # list with check and clean tips by combinations
     # Get tips with combinations and order by combinations count
-    if tips: 
-        tips_combinations=tips #._addSpecial( "$orderby", { 'combinations' : -1 } )
+    if tips:        
+        tips_combinations=warn_class.tips  # tips of warn class
+        sorted(tips_combinations, key=get_Orderby_Combinations,  reverse=True) 
+    
         for comb in  tips_combinations:
-            list_comb=comb.combinations
-            for ictips in list_comb:
-                if ictips in tips:
-                     tips_cleaning.append(ictips.pk)
-                         
-            if len(tips_cleaning) == len(list_comb):
-                # remove child tips and add father tip
-                for i in tips_cleaning: #exclude on results
-                    tips_exclude.append(i)
+            list_comb=comb.combinations # get list of combinations
+            if list_comb:
+                for ictips in list_comb:
+                    if ictips in tips:
+                         tips_cleaning.append(ictips._id)
+                if len(tips_cleaning) == len(list_comb):
+                    # remove child tips and add father tip                    
+                    if comb not in  tips_list: # adding the father tips
+                        tips_list.append(comb)
                     
-                if comb not in  tips_list: # adding the father tips
-                     tips_list.append(comb)
-            else:
-                tips_cleaning.clear() 
+                    for iclen in tips_cleaning: # adding cancelation of children tips
+                             tips_exclude.append(iclen)
+                             
+                else:
+                    tips_cleaning.clear() 
         
         # list tips whitout combinations                
         for tip in tips:
-            if tip not in  tips_list:
-                if obj not in tips_exclude:
+            if tip not in  tips_list and tip._id not in tips_exclude:  # no have been listed s  
                     tips_list.append(tip)  
-        
+                    
+    sorted(tips_list, key=get_Orderby_Combinations,  reverse=True)    
     return tips_list    
 
 def get_combinate_prudence(prudence,prudence_list):
@@ -101,12 +120,17 @@ def get_combinate_prudence(prudence,prudence_list):
      return prudence_list
 
 
-   
+def get_Orderby_human_tag(obj):
+    return obj.human_tag   
+
 def get_pictograms(pictogram,pictogram_list):
-     for obj in  pictogram:
+    sorted(pictogram, key=get_Orderby_human_tag,  reverse=True)
+    for obj in  pictogram:
         if obj not in pictogram_list:
             pictogram_list.append(obj )
-     return pictogram_list
+
+    sorted(pictogram_list, key=get_Orderby_human_tag,  reverse=True)            
+    return pictogram_list
 
 def get_components_indictors(components):
     list_id=[]
@@ -121,29 +145,24 @@ def get_label_component(components):
     pictogram_list=[]
     prudence_list=[]
     
+    
+    tips_list_ob=get_list_tips(components) # list all components tips 
     for isga in components:
-            
         indicators = isga.sga_indicators
-        for ind_class in indicators:
+        for ind_class in indicators: # check class indicator
             warnigns_categories =  ind_class.warning_categories
-            for warn_class in warnigns_categories:
-                
-                if warn_class.pictogram :
-                     pictogram = warn_class.pictogram #.raw({ human_tag : -1}) #._addSpecial( "$orderby", { 'human_tag' : -1 } )
-                     print (pictogram)
-                else: pictogram=None     
-                
-                if warn_class.tips :
-                     tips = warn_class.tips
-                else: tips=None     
+            for warn_class in warnigns_categories:  #check list of class
+                                    
+                if warn_class.pictogram : # get pictograms of class
+                     pictogram = warn_class.pictogram 
+                else: pictogram=None         
                     
-                    
-                if warn_class.prudence :
+                if warn_class.prudence : #get prudence of class
                      prudence = warn_class.prudence
                 else: prudence=None     
                         
                 # Processing data
-                tips=get_combinate_tips(tips,tips_list)
+                get_combinate_tips(tips_list_ob,tips_list,warn_class)  # check tips on class
                 pictogram=get_pictograms(pictogram,pictogram_list)
                 prudence=get_combinate_prudence(prudence,prudence_list)
       
@@ -153,10 +172,9 @@ def get_label_component(components):
 
 def get_label_sustance(sustance):
     (indicators,warnigns_categories,pictogram,tips,prudence)=get_label_component(sustance.components)
-    
-    
+     
     label = {# list of values kept on product label
-    'sustance_code': sustance.cas_number,
+    'sustance_code': '',
     'sustance_name': sustance.marketing_name,
     'sustance_instructions': '',
     'provider': sustance.provider,

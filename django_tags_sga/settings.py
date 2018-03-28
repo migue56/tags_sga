@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
+from django.urls import reverse_lazy
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ajax',
+    'crispy_forms',
     'bootstrapform',
     'pymodm',
     'tags_sga',
@@ -121,10 +123,11 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-STATIC_ROOT='static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
-MEDIA_URL='/media/'
-MEDIA_ROOT='media/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = 'media/' #os.path.join(BASE_DIR, 'media/')
 
+LOGIN_REDIRECT_URL = reverse_lazy('sustance-list')
 
 

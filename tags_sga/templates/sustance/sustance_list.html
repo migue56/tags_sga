@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load bootstrap i18n static %}
+
+{% block title %}{% trans 'Sustance List' %}{% endblock %}
+
+
+{% block content %}
+	  {% if object_list %}
+	    <ul class="post-list">
+	      {% for sustance in object_list %}
+	        <li class="post-item">
+	         <a href="{% url 'sustance-detail' sustance.pk %}">  {{ sustance.marketing_name }}
+	        </li>
+	      {% endfor %}
+	    </ul>
+	  {% else %}
+	    <p class="no-posts">Nothing to see yet! Come back soon and check for updates.</p>
+	  {% endif %}
+	  <a href="/posts/new">Create a new post.</a>
+{% endblock %}
+
+
+

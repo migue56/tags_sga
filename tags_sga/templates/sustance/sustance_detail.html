@@ -1,0 +1,58 @@
+<!-- -*- mode: jinja2 -*- -->
+{% extends "base.html" %}
+{% load bootstrap  i18n  static tags %}
+
+{% block title %}{{ sustance.marketing_name }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'sustance-list'%}">Back to main page</a>.
+
+  <p class="post-details">
+    Sustance by <span class="post-details-author">{{ sustance.provider.name }}</span>
+  </p>
+  <p class="post-content">
+  
+  <div class="row" >
+  <ul  class="list-group">
+  <li class="row list-group-item">
+	
+	<div class="col-md-10">
+	      <h1>{{ sustance.marketing_name }}</h1>
+    </div>
+   
+    
+        
+	    <div class="btn-group dropup pull-right">
+	              <a class="btn btn-info"
+             href="{% url 'sustance-generate' sustance.pk %}">
+            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> {% trans 'Edit' %}</a>
+          <a class="btn btn-danger"
+             href="{% url 'sustance-generate'  sustance.pk %}">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>{% trans 'Delete' %}</a>
+		  <button  onclick='location.href="{% url 'sustance-generate' sustance.pk %}?format=html"'   
+		   type="button" class="btn btn-danger">  <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+		  {% trans 'Download'%}</button>
+		  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="caret"></span>
+		    <span class="sr-only"> {% trans "Generate Label" %}/span>
+		  </button>
+		  <ul class="dropdown-menu">
+		  <li>  <a  
+		       href="{% url 'sustance-generate' sustance.pk %}">{% trans "Big" %} </a>
+		  </li>
+		  </ul>
+		</div>
+	
+	  </li>
+    </ul> 
+	</div> 
+	 
+	  <br/>
+  <div class="row" >
+	  <ul  class="list-group">
+		  <li class="row list-group-item">	  
+			     <p>{% get_general_label sustance.pk %}</p>
+		  </li>
+	  </ul>
+  </div>
+{% endblock %}

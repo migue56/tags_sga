@@ -1,76 +1,52 @@
-{% load static %}<!DOCTYPE html>
-<html>
+{% load static %}
+{% load i18n %}
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    {% block title_outer %}
-        <title>{% block title %}{{ site.name }}{% endblock %}</title>
-    {% endblock %}
+  {# METADATA  #}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    {% block meta %}
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-COMPATIBLE" content="IE=edge">
-        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    {% endblock %}
+  {# TITLE #}
+  <title>Sustance | {% block title %}Index{% endblock %}</title>
 
-    {% block stylesheets %}
-        {% include 'lib/_styles.html' %}
-    {% endblock %}
+  {# CSS #}
+  <link href="{% static 'css/base.css' %}" rel="stylesheet">
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 
-    {% block javascript %}
-        {% include 'lib/_scripts.html' %}
-    {% endblock %}
+  {% block css %}{% endblock %}
 
-    {% block extra_head %}{% endblock %}
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+
+
 </head>
-<body class="hold-transition skin-blue sidebar-mini {% block body_class %}{% block bodyclass %}{% endblock %}{% endblock %}">
+<body>
+{# NAV #}
+{% include 'partials/navbar.html' %}
 
-{% block body %}
-    <div class="wrapper">
-        {% block nav_header %}
-            {% include 'lib/_main_header.html' %}
-        {% endblock %}
+{# MESSAGES #}
+{% include 'partials/messages.html' %}
 
-        {% block nav_sidebar %}
-            {% include 'lib/_main_sidebar.html' %}
-        {% endblock %}
+{# CONTENT #}
+<div id="site_content">
+  <div class="{% block container %}container{% endblock %}">
+    {% block content %}
+    {% endblock %}
+  </div>
+</div>
 
-        {% block content_wrapper %}
-        <div class="content-wrapper">
-            {% block content_header %}
-                <section class="content-header">
-                    <h1>
-                        {% block page_name %}{% endblock %}
-                        {% block no_description %}
-                        <small>{% block page_description %}{% endblock %}</small>
-                        {% endblock %}
-                    </h1>
-                    {% block breadcrumbs %}
-                        {# Breadcrumb implementation left to developers #}
-                    {% endblock %}
-                </section>
-            {% endblock %}
+{# FOOTER #}
+{% include 'partials/footer.html' %}
 
-            {% block content_outer %}
-            <section class="content">
-                {% block messages %}
-                    {% include 'lib/_messages.html' %}
-                {% endblock %}
+<div class="jsmessage"></div>
+{# JS #}
 
-                {% block content_block_wrap %}
-                    {% block content %}{% endblock %}
-                {% endblock %}
-            </section>
-            {% endblock %}
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'django_ajax/js/jquery.ajax.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'django_ajax/js/jquery.ajax-plugin.min.js' %}"></script>
 
-        </div>
-        {% endblock content_wrapper %}
-
-        {% block nav_footer %}
-            {% include 'lib/_main_footer.html' %}
-        {% endblock %}
-
-    </div>
-{% endblock body %}
-
-{% block extra_foot %}{% endblock %}
+{% block js %}{% endblock %}
 </body>
 </html>

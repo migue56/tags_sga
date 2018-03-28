@@ -26,12 +26,4 @@ from tags_sga import urls as urls_sga
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include(urls_sga)),
-
-    url(r'^login/$', auth_views.login,
-        {'template_name': 'login.html'}, name='login'),
-    
-    url(r'^logout/$', auth_views.logout, {
-        'next_page': 'sustance/'},
-        name='logout'),
-
 ]

@@ -12,11 +12,6 @@ from pymodm.files import FieldFile
 
 connect('mongodb://localhost:27017/tags_sga')
 
-class defaultManager(Manager):
-    def get_queryset(self):
-        # Override get_queryset, so that every QuerySet created will
-        # have this filter applied.
-        return super(defaultManager, self).get_queryset().raw()
 
 class Pictogram(MongoModel):
     DANGER = 5
@@ -66,9 +61,13 @@ class Prudence(MongoModel):
     codename = fields.CharField(primary_key=True)
     general_help = fields.CharField()
     conditions_use = fields.CharField()
+    combinations = fields.ListField(fields.ReferenceField('Prudence')) # MPTT
 
     def __str__(self):
-      return self.codename    
+      return self.codename 
+    
+    class Meta:
+        indexes = [IndexModel([('codename', TEXT)])]
 
 class Category (MongoModel):
     codename = fields.CharField(max_length=150)  # División 1.1
@@ -86,12 +85,14 @@ class Category (MongoModel):
 class SGAIndicator(MongoModel):
     codename = fields.CharField(primary_key=True)
     warning_categories = fields.ListField(fields.ReferenceField('Category')) 
+    tips = fields.ListField(fields.ReferenceField('Tip'))
     
     def __str__(self):
       return self.codename
   
 class Component(MongoModel):
     marketing_name = fields.CharField(max_length=250) 
+    cas_number = fields.CharField(max_length=150)
     sga_indicators = fields.ListField(fields.ReferenceField('SGAIndicator')) 
     
 
@@ -99,22 +100,21 @@ class Component(MongoModel):
       return self.marketing_name
 
 class Provider(EmbeddedMongoModel):
-    name = fields.CharField(max_length=150)
-    phone = fields.CharField(max_length=15)
-    address = fields.CharField(max_length=100)
+    name = fields.CharField(max_length=250)
+    phone = fields.CharField(max_length=30)
+    address = fields.CharField(max_length=500)
     
     def __str__(self):
         return self.name
       
 class Sustance(MongoModel):
     marketing_name = fields.CharField(max_length=250) 
-    cas_number = fields.CharField(max_length=150)
     components = fields.EmbeddedDocumentListField('Component')
     use_instructions=fields.CharField(max_length=500)
     provider = fields.EmbeddedDocumentListField('Provider')
     
     def __str__(self):
-      return "%s:%s"%(self.cas_number,self.marketing_name)    
+      return (self.marketing_name)    
     
 class Product(MongoModel):
 #     sustance = models.ForeignKey(Sustance,null=False,blank=False, on_delete=models.CASCADE)

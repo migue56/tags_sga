@@ -2,3 +2,4 @@ xhtml2pdf
 pymongo
 pymodm
 django-bootstrap-form
+djangoajax==2.3.6
