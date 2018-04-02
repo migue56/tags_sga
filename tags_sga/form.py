@@ -1,43 +1,91 @@
 
 from django import forms
-
+from django.contrib.admin import widgets
+from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.core.exceptions import ValidationError
+from django.forms import ModelChoiceField
+from django.core import validators
+from django.utils.translation import ugettext_lazy as _
+from .models import (
+    Pictogram,
+    Tip,
+    Prudence,
+    Category,
+    SGAIndicator,
+    Component,
+    Sustance,
+    )
 
 class SustanceForm(forms.Form):
+    #id = forms.CharField(widget=forms.HiddenInput())
     marketing_name =  forms.CharField(max_length=250) 
-    use_instructions = forms.CharField(max_length=500)
+    use_instructions = forms.CharField(max_length=500,widget=forms.Textarea )
+#     components = forms.ModelMultipleChoiceField(
+#         queryset=Component.objects.all(),
+#         required=True,
+#         widget=FilteredSelectMultiple(
+#             verbose_name=_('Keywords Associated with Statement'),
+#             is_stacked=False
+#             )  
+#     )    
+    #    forms.MultipleChoiceField(
+    #         widget=forms.widgets.CheckboxSelectMultiple(), 
+    #         required=False)
+
+    # provider = forms.ModelChoiceField(queryset=None)
     
-    #components = fields.EmbeddedDocumentListField('Component')
-    #provider = fields.EmbeddedDocumentListField('Provider')
-  
-    def build_field(self,updated_initial,initial_arguments ):    
-        if initial_arguments.marketing_name:
+    def build_field(self,updated_initial,initial_arguments ):
+                   
+        if hasattr(initial_arguments,"marketing_name"):
             updated_initial['marketing_name'] = initial_arguments.marketing_name
-            
-        if initial_arguments.use_instructions:
-            updated_initial['use_instructions'] = initial_arguments.use_instructions            
+           
+        if hasattr(initial_arguments,"use_instructions"):
+            updated_initial['use_instructions'] = initial_arguments.use_instructions  
+        
+#         if hasattr(initial_arguments,"components"):            
+#              updated_initial['components'] = [tag.marketing_name for tag in initial_arguments.components]
+#           
     
     def __init__(self, *args, **kwargs):
             # Get 'initial' argument if any
-            initial_arguments = kwargs.get('initial', None)
-            if initial_arguments:
+            self.instance  = kwargs.get('initial', None)
+            
+            if self.instance :
                 updated_initial = {}
-                self.build_field(updated_initial,initial_arguments)
+                self.build_field(updated_initial,self.instance )
                 kwargs.update(initial=updated_initial)
+                
             super(SustanceForm, self).__init__(*args, **kwargs)
 
-    def form_valid(self, form):
-
-
-        return super().form_valid(form)
-          
     def clean(self):
-        cleaned_data = super(SustanceForm, self).clean()
-        name = cleaned_data.get('marketing_name')
-        email = cleaned_data.get('use_instructions')
+        self.cleaned_data = self.instance if self.instance else None#super(SustanceForm, self).clean()
+        if self.cleaned_data :
+            marketing_name = self.cleaned_data.get('marketing_name')
+            use_instructions = self.cleaned_data.get('use_instructions')
+            #components = self.cleaned_data.get('components')
+            if not marketing_name and not use_instructions :
+                raise forms.ValidationError(_("Complete you the fields required"))
+        return self.cleaned_data
 
+    def is_valid(self):
+         #valid = super(SustanceForm, self).is_valid()
+         return self.clean()
+    
+    def save(self, commit=True):
+        object = self.object if self.object else Sustance()
+        object.marketing_name = self.cleaned_data['marketing_name']
+        object.use_instructions = self.cleaned_data['use_instructions']
+#       object.components = self.cleaned_data['components']
 
+        #post.tags = Tag.objects(id__in=self.cleaned_data['tags'])
+        if commit:
+            object.save()
 
-
+        return object
+    
+    
+    
+    
 
 
         
@@ -51,7 +99,7 @@ class ProviderForm(forms.Form):
     #provider = fields.EmbeddedDocumentListField('Provider')
     
     def clean(self):
-        cleaned_data = super(SustanceForm, self).clean()
+        cleaned_data = super(ProviderForm, self).clean()
         name = cleaned_data.get('name')
         phone = cleaned_data.get('phone')
         address =cleaned_data.get('address')

@@ -59,12 +59,18 @@ class UpdateSustanceView(View):
         return Http404
 
     def post(self, request,sustance_pk):
+        sustance_pk = ObjectId(sustance_pk)
+            
         form  = SustanceForm(initial=request.POST)
+        sustance_pk = ObjectId(sustance_pk)
+        obj = Sustance.objects.get({'_id':sustance_pk})
+        form.object = obj
         if form.is_valid():
             form.save()
-            print (form)
             return HttpResponseRedirect(self.success_url)
         else:
+            if obj:
+                form = SustanceForm(initial=obj)            
             return render(request, self.template_name, { 'form' : form })
         return Http404
         
